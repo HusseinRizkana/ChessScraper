@@ -12,7 +12,6 @@ folder = "output_data"
 for player in names["GM"]:
     player_games = ChessComData.retrieve_games_per_month(player, months_list, years_list)
     ChessComData.save_player_games(folder, player_games, player)
-    sleep(2)
 #select output destination folder
 
 

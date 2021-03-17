@@ -55,10 +55,9 @@ def retrieve_games_per_month(player, months_list, years_list):
         except:
             try:
                 #allow api reset time in case of api overload error
-                sleep(2) 
+                sleep(30) 
                 cors = [get_player_games_by_month(
                     player, year, month) for month in months_list]
-
                 # loop through requests until complete. # use asyincio for parallel.
                 # response returns a list of chessdotcom response objects
                 response = Client.loop.run_until_complete(gather(*cors))
@@ -67,7 +66,8 @@ def retrieve_games_per_month(player, months_list, years_list):
                     games_p_year[i] = response[i-1].json["games"]
                 successes += 1
 
-            except:
+            except Exception as e:
+                print(e)
                 print(f"error {player},{year}")
                 # print('player = ' + player + ' month = '+str(month) + ' year =' + str(year))
                 nothings += 1
