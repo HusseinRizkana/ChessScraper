@@ -60,10 +60,11 @@ def retrieve_games_per_month(player, months_list, years_list):
         #     nothings += 1
         # # key=year:values=all games played in specified months
         games[year] = games_p_year
+    print("successes: " + str(successes))
+    print("fails: " + str(nothings))
     return games
 
-    print("player years returned: " + str(successes))
-    print("months not returned: " + str(nothings))
+    
 
 player_games = {}
 player_games = retrieve_games_per_month(player, months_list, years_list)
