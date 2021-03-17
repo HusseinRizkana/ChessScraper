@@ -21,13 +21,7 @@ def get_names_by_title(titles):
     return names_by_title
 
 
-names = get_names_by_title(["GM"])
-player_games = {}
-games_per_month = {}
-# %%
-years_list = [2020]  # chosen years
-months_list = [i for i in range(1, 13)]  # chosen months
-player = "123lt"  # chosen player chessdotcom usernames
+
 
 
 def retrieve_games_per_month(player, months_list, years_list):
@@ -60,7 +54,8 @@ def retrieve_games_per_month(player, months_list, years_list):
             successes += 1
         except:
             try:
-                sleep(2)
+                #allow api reset time in case of api overload error
+                sleep(2) 
                 cors = [get_player_games_by_month(
                     player, year, month) for month in months_list]
 
@@ -73,7 +68,6 @@ def retrieve_games_per_month(player, months_list, years_list):
                 successes += 1
 
             except:
-                retry = 0
                 print(f"error {player},{year}")
                 # print('player = ' + player + ' month = '+str(month) + ' year =' + str(year))
                 nothings += 1
@@ -83,10 +77,8 @@ def retrieve_games_per_month(player, months_list, years_list):
     print("fails: " + str(nothings))
     return games
 
+# initialize games dictionary
 
-player_games = {}
-player_games = retrieve_games_per_month(player, months_list, years_list)
-folder = "output_data"
 
 
 def save_player_games(folder, player_games, player_name, additiondesc=""):
@@ -104,4 +96,3 @@ def save_player_games(folder, player_games, player_name, additiondesc=""):
     print(files_saved)
 
 
-save_player_games(folder, player_games, player)
