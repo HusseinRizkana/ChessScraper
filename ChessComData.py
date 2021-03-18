@@ -4,6 +4,7 @@ from pprint import pprint
 from time import sleep
 import json
 import os
+import boto3
 
 
 def get_names_by_title(titles):
@@ -78,21 +79,29 @@ def retrieve_games_per_month(player, months_list, years_list):
     return games
 
 # initialize games dictionary
+class game: 
+    def __init__(self):
+        self.
 
 
 
-def save_player_games(folder, player_games, player_name, additiondesc=""):
+def save_player_games(folder, player_games, player_name, client ,disk_or_cloud=0, bucket=None):
     # use multiple files
     files_saved = []
     for year in player_games:
         # + = create if not available
         # os.path.join works on all OS's
-        with open(os.path.join(folder, f"{player_name}_{year}_games.json"), 'w+') as fp:
-            # allow file to accept none-ascii values when writing
-            json.dump(player_games[year], fp, ensure_ascii=False)
+        if disk_or_cloud == 0:
+            with open(os.path.join(folder, f"{player_name}_{year}_games.json"), 'w+') as fp:
+                # allow file to accept none-ascii values when writing
+                json.dump(player_games[year], fp, ensure_ascii=False)
+                files_saved.append(os.path.join(
+                    folder, f"{player_name}_{year}_games.json"))
+        else:
+            file_key = folder + f"/{player_name}_{year}_games.json"
+            content=json.dumps(player_games[year],ensure_ascii=False)
+            client.Object(bucket, file_key).put(Body=content)
             files_saved.append(os.path.join(
-                folder, f"{player_name}_{year}_games.json"))
-            # ,indent=4,sort_keys=True
+                    folder, f"{player_name}_{year}_games.txt"))
     print(files_saved)
-
 
