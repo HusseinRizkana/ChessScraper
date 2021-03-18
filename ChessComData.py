@@ -78,10 +78,10 @@ def retrieve_games_per_month(player, months_list, years_list):
     print("fails: " + str(nothings))
     return games
 
-# initialize games dictionary
-class game: 
-    def __init__(self):
-        self.
+# # initialize games dictionary
+# class game: 
+#     def __init__(self):
+#         self.
 
 
 
