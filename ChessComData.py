@@ -7,6 +7,7 @@ import json
 import os
 import boto3
 import requests
+import pycountry
 #%%
 
 
@@ -150,7 +151,9 @@ def get_player_data(player):
     playerdict["title"] = r.json()["title"]
     playerdict["is_streamer"] = r.json()["is_streamer"]
     playerdict["join_date"] = r.json()["joined"]
-    playerdict["country"] = r.json()["country"].replace('https://api.chess.com/pub/country/','')
+    playerdict["country_code"] = r.json()["country"].replace('https://api.chess.com/pub/country/','')
     playerdict["name"] = r.json()["name"]
 
     return playerdict
+
+# %%
