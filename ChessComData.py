@@ -6,6 +6,12 @@ import json
 import os
 import boto3
 import requests
+from chess import pgn
+import chess
+import io
+
+
+
 
 def get_names_by_title(titles):
     '''
@@ -21,7 +27,7 @@ def get_names_by_title(titles):
         names_by_title[name] = response[i].json["players"]
     return names_by_title
 
-def retrieve_games_per_month(player, months_list, years_list):
+def retrieve_games_per_month_conc(player, months_list, years_list):
     '''
     retrieves all games played in the list of years in the list of months by player stated
     inputs:
@@ -52,7 +58,7 @@ def retrieve_games_per_month(player, months_list, years_list):
         except:
             try:
                 # allow api reset time in case of api overload error
-                sleep(5)
+                sleep(25)
                 cors = [get_player_games_by_month(
                     player, year, month) for month in months_list]
                 # loop through requests until complete. # use asyincio for parallel.
@@ -68,6 +74,41 @@ def retrieve_games_per_month(player, months_list, years_list):
                 print(f"error {player},{year}")
                 # print('player = ' + player + ' month = '+str(month) + ' year =' + str(year))
                 nothings += 1
+        # key=year:values=all games played in specified months
+        games[year] = games_p_year
+    print("successes: " + str(successes))
+    print("fails: " + str(nothings))
+    return games
+def retrieve_games_per_month_series(player, months_list, years_list):
+    '''
+    retrieves all games played in the list of years in the list of months by player stated
+    inputs:
+            player username as string
+            months as list 1-12
+            years as integer list
+
+    '''
+    nothings = 0
+    successes = 0
+    games_p_year = {}
+    games = {}
+    # print(player)
+    for year in years_list:
+        print(year)
+        try:
+            # response returns a list of chessdotcom response objects
+            for i in months_list:
+                # dictionary of key=month : values=gamedata
+                
+                print(i)
+                response = Client.loop.run_until_complete(get_player_games_by_month(player,year=year,month=i))
+                games_p_year[i] = response.json["games"]
+            successes += 1
+        except Exception as e:
+            print(e)
+            print(f"error {player},{year}")
+            # print('player = ' + player + ' month = '+str(month) + ' year =' + str(year))
+            nothings += 1
         # key=year:values=all games played in specified months
         games[year] = games_p_year
     print("successes: " + str(successes))
@@ -92,10 +133,12 @@ def save_player_games(folder, player_games, player_name, client, disk_or_cloud="
             client.Object(bucket, file_key).put(Body=content)
             files_saved.append(os.path.join(
                 folder, f"{player_name}_{year}_games.txt"))
-    if disk_or_cloud != "disk" or "cloud":
-        print("invalid save location, no files saved")
-    else:
-        print(files_saved)
+    
+    # if disk_or_cloud != "disk" or disk_or_cloud !="cloud":
+    #     print("invalid save location, no files saved")
+    # else:
+    print(files_saved)
+    print(f"to {disk_or_cloud}")
 
 def get_player_data(player):
     '''
@@ -117,3 +160,49 @@ def get_player_data(player):
 
     return playerdict
 
+# class getClockVisitor(chess.pgn.BaseVisitor):
+#     def visit_move(self, board, move):
+#         print(board.san(move))
+
+#     def result(self):
+#         return None
+    
+def get_sec(time_str):
+    """Get Seconds from time."""
+    h, m, s = time_str.split(':')
+    return int(h) * 3600 + int(m) * 60 + int(float(s))
+
+
+def extract_game_pgn(game):
+    move_data = {}
+    moves_data = []
+
+    game_data = chess.pgn.read_game(io.StringIO(game))
+    game_date = game_data.headers["UTCDate"]
+    game_opening = game_data.headers["ECOUrl"].replace("https://www.chess.com/openings/","")
+    game_time = game_data.headers["UTCTime"]
+    moves = str(game_data.mainline_moves())
+    moves = moves.replace(" ","")
+    moves = moves.replace("{[%","")
+    moves=  moves.replace("]","")
+    moves_split = moves.split("}")
+
+    for i in moves_split[:-1]:
+        i = i.split("clk")
+        move_number = i[0].split(".",1)[0]
+        if i[0].split(".",1)[1][0]!=".":
+            white_move = i[0].rsplit(".",1)
+            whiteMove = white_move[1]
+            white_clk = i[1]
+            move_data["white_move"] = whiteMove
+            move_data["white_clk"] = get_sec(white_clk)
+            moves_data.append([move_number,move_data])
+        else:
+            black_move = i[0].rsplit(".",1)
+            blackMove = black_move[1]
+            black_clk = i[1]
+            move_data["black_move"] = blackMove
+            move_data["black_clk"] = get_sec(black_clk)
+            moves_data[int(move_number)-1] = [move_number, move_data]
+            move_data={} 
+    return moves_data,game_date,game_time,game_opening
