@@ -159,14 +159,7 @@ def get_player_data(player):
     playerdict["name"] = r.json()["name"]
 
     return playerdict
-
-# class getClockVisitor(chess.pgn.BaseVisitor):
-#     def visit_move(self, board, move):
-#         print(board.san(move))
-
-#     def result(self):
-#         return None
-    
+   
 def get_sec(time_str):
     """Get Seconds from time."""
     h, m, s = time_str.split(':')
