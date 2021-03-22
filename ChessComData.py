@@ -174,7 +174,10 @@ def extract_game_pgn(game):
 
     game_data = chess.pgn.read_game(io.StringIO(game))
     game_date = game_data.headers["UTCDate"]
-    game_opening = game_data.headers["ECOUrl"].replace("https://www.chess.com/openings/","")
+    try:
+        game_opening = game_data.headers["ECOUrl"].replace("https://www.chess.com/openings/","")
+    except:
+        game_opening = "NULL"
     game_time = game_data.headers["UTCTime"]
     moves = str(game_data.mainline_moves())
     moves = moves.replace(" ","")

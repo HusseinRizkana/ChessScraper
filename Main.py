@@ -1,6 +1,6 @@
 # %%
 from ChessComData import (get_player_data, get_names_by_title,
-                                       retrieve_games_per_month_series, save_player_games, extract_game_pgn)
+                          retrieve_games_per_month_series, save_player_games, extract_game_pgn)
 from boto3 import resource
 from rds_db_interact import (insert_into_table, get_players, get_moves, insert_multi_into_table,
                              clear_table, get_max_games, get_games)
@@ -12,17 +12,17 @@ s3Client = resource("s3", aws_access_key_id=access_key_ID,
                     aws_secret_access_key=secret_access_ID)
 
 
-# %% 
+# %%
 # get player usernames that are currently holding this title
 names = get_names_by_title(["GM"])
 # print(names)
 # initialize all player games dict and games per month dict
 player_games = {}
 games_per_month = {}
-# %%
+
 years_list = [2020]  # chosen years
 # months_list = [i for i in range(1, 13)]  # chosen months
-months_list = [i for i in range(1,13)]
+months_list = [i for i in range(1, 13)]
 player_games = {}
 folder = "output_data"
 # tables used
@@ -34,6 +34,7 @@ columns_moves = "game_id, move_num, white_move, white_clck, black_move, black_cl
 columns_games = "game_id, player_black_username, player_white_username, result_black, result_white, game_mode, time_control, inc, date, opening, white_elo, black_elo, start_time"
 columns_players = "player_id, username, name, join_date, country_code, streamer_status, title"
 # retrieve players in chosen titles
+#%%
 for player in names["GM"][12:]:
     # return dictionary of player data
     print(player)
@@ -59,7 +60,7 @@ for player in names["GM"][12:]:
             for game in player_games[year][month]:
                 # extract game portable game notation data
                 pgn = game["pgn"]
-
+                #new game_id
                 game_num = get_max_games() + 1
                 # translate game into usable structure for SQL insert
                 moves_data, game_date, game_time, game_opening = extract_game_pgn(
@@ -82,35 +83,17 @@ for player in names["GM"][12:]:
 
                 game_id = str(game_num)
                 values_games = "{},'{}','{}','{}','{}','{}',{},{},'{}','{}',{},{},'{}'".format(game_id,
-                                                                                               player_black_username, player_white_username, result_black, result_white,
-                                                                                               game_mode, time_control[0], time_control[1], date, opening, white_elo, black_elo, start_time)
+                              player_black_username, player_white_username, result_black, result_white,
+                              game_mode, time_control[0], time_control[1], date, opening, white_elo, black_elo, start_time)
+                # add game Id identifier to every move 
                 MD = [[game_id]+moves_data[i] for i in range(len(moves_data))]
                 # map into a list of tuples for single multiple insert
                 MD = list(map(tuple, MD))
 
-                # print(MD)
+                #moves to string of tuples per move
                 values_moves = ','.join("({}, {}, '{}', {}, '{}', {})".format(
                     i, j, k, x, y, z) for i, j, k, x, y, z in MD)
-                # #insert into moves table
+                #insert into games table
                 insert_into_table("games", columns_games, values_games)
+                #insert into moves table
                 insert_multi_into_table("moves", columns_moves, values_moves)
-
-
-get_players()
-get_games()
-get_moves()
-# %%
-
-
-# select output destination folder
-
-# Iterates through all the objects, doing the pagination for you. Each obj
-# is an ObjectSummary, so it doesn't contain the body. You'll need to call
-# get to get the whole body.
-# %%
-# bucket = s3Client.Bucket('chess-games-js')
-# for obj in bucket.objects.all():
-#     key = obj.key
-#     body = obj.get()['Body'].read()
-# print(body)
-# %%
