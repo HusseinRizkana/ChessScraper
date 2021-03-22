@@ -194,13 +194,16 @@ def extract_game_pgn(game):
             white_move = i[0].rsplit(".",1)
             whiteMove = white_move[1]
             white_clk = i[1]
-            move_data.extend([whiteMove,get_sec(white_clk)]) 
-            moves_data.append([move_number,move_data])
+            # move_data.extend([whiteMove,get_sec(white_clk)]) 
+            move_data.extend([whiteMove,get_sec(white_clk),"NULL","NULL"])
+            moves_data.append([move_number]+move_data)
+
         else:
             black_move = i[0].rsplit(".",1)
             blackMove = black_move[1]
             black_clk = i[1]
-            move_data.extend([blackMove,get_sec(black_clk)])
+            # move_data.extend([blackMove,get_sec(black_clk)])
+            move_data[2:] = [blackMove,get_sec(black_clk)]
             moves_data[int(move_number)-1][1:]= move_data
             move_data=[] 
     return moves_data,game_date,game_time,game_opening
