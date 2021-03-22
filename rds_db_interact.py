@@ -168,7 +168,7 @@ def create_table(sql, tablename):
 crt_games = '''CREATE TABLE if not exists games(
     game_id int, player_black_username varchar(60),player_white_username varchar(60),
     result_black varchar(30), result_white varchar(30),game_mode varchar(30),time_control int, inc int,
-    date varchar(25), opening varchar(90),start_time varchar(50) PRIMARY KEY(game_id)
+    date varchar(25), opening varchar(90),start_time varchar(50), PRIMARY KEY(game_id)
 
 )'''
 if __name__ == "__main__":
