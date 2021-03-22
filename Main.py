@@ -12,16 +12,17 @@ s3Client = resource("s3", aws_access_key_id=access_key_ID,
                     aws_secret_access_key=secret_access_ID)
 
 
-# %%
+# %% 
 # get player usernames that are currently holding this title
-names = get_names_by_title(["GM", "IM"])
+names = get_names_by_title(["GM"])
+# print(names)
 # initialize all player games dict and games per month dict
 player_games = {}
 games_per_month = {}
 # %%
 years_list = [2020]  # chosen years
 # months_list = [i for i in range(1, 13)]  # chosen months
-months_list = [1]
+months_list = [i for i in range(1,13)]
 player_games = {}
 folder = "output_data"
 # tables used
@@ -33,8 +34,9 @@ columns_moves = "game_id, move_num, white_move, white_clck, black_move, black_cl
 columns_games = "game_id, player_black_username, player_white_username, result_black, result_white, game_mode, time_control, inc, date, opening, white_elo, black_elo, start_time"
 columns_players = "player_id, username, name, join_date, country_code, streamer_status, title"
 # retrieve players in chosen titles
-for player in names["GM"]:
+for player in names["GM"][12:]:
     # return dictionary of player data
+    print(player)
     pd = get_player_data(player)
 
     # values to be inputted in rds players sql table

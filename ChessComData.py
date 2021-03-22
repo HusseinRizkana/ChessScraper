@@ -42,7 +42,6 @@ def retrieve_games_per_month_conc(player, months_list, years_list):
     games = {}
     # print(player)
     for year in years_list:
-        print(year)
         try:
             # coroutines for the case of multiple title request
             cors = [get_player_games_by_month(
@@ -156,7 +155,10 @@ def get_player_data(player):
     playerdict["join_date"] = r.json()["joined"]
     playerdict["country_code"] = r.json()["country"].replace(
         'https://api.chess.com/pub/country/', '')
-    playerdict["name"] = r.json()["name"]
+    try:
+        playerdict["name"] = r.json()["name"]
+    except:
+        playerdict["name"] = "NULL"
 
     return playerdict
    
