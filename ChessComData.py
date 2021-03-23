@@ -167,6 +167,26 @@ def get_sec(time_str):
     h, m, s = time_str.split(':')
     return int(h) * 3600 + int(m) * 60 + int(float(s))
 
+def moves_extract(i,move_data,moves_data):
+    i = i.split("clk")
+    move_number = i[0].split(".",1)[0]
+    if i[0].split(".",1)[1][0]!=".":
+        white_move = i[0].rsplit(".",1)
+        whiteMove = white_move[1]
+        white_clk = i[1]
+        # move_data.extend([whiteMove,get_sec(white_clk)]) 
+        move_data.extend([whiteMove,get_sec(white_clk),"NULL","NULL"])
+        moves_data.append([move_number]+move_data)
+
+    else:
+        black_move = i[0].rsplit(".",1)
+        blackMove = black_move[1]
+        black_clk = i[1]
+        # move_data.extend([blackMove,get_sec(black_clk)])
+        move_data[2:] = [blackMove,get_sec(black_clk)]
+        moves_data[int(move_number)-1][1:]= move_data
+        move_data=[] 
+    return moves_data
 
 def extract_game_pgn(game):
     move_data = []
@@ -186,22 +206,8 @@ def extract_game_pgn(game):
     moves_split = moves.split("}")
 
     for i in moves_split[:-1]:
-        i = i.split("clk")
-        move_number = i[0].split(".",1)[0]
-        if i[0].split(".",1)[1][0]!=".":
-            white_move = i[0].rsplit(".",1)
-            whiteMove = white_move[1]
-            white_clk = i[1]
-            # move_data.extend([whiteMove,get_sec(white_clk)]) 
-            move_data.extend([whiteMove,get_sec(white_clk),"NULL","NULL"])
-            moves_data.append([move_number]+move_data)
-
-        else:
-            black_move = i[0].rsplit(".",1)
-            blackMove = black_move[1]
-            black_clk = i[1]
-            # move_data.extend([blackMove,get_sec(black_clk)])
-            move_data[2:] = [blackMove,get_sec(black_clk)]
-            moves_data[int(move_number)-1][1:]= move_data
-            move_data=[] 
+        move_data,moves_data = moves_extract(i,move_data,moves_data)
     return moves_data,game_date,game_time,game_opening
+
+
+

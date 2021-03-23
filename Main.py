@@ -22,7 +22,7 @@ games_per_month = {}
 
 years_list = [2020]  # chosen years
 # months_list = [i for i in range(1, 13)]  # chosen months
-months_list = [i for i in range(1, 13)]
+months_list = [1]
 player_games = {}
 folder = "output_data"
 # tables used
@@ -89,7 +89,6 @@ for player in names["GM"][12:]:
                 MD = [[game_id]+moves_data[i] for i in range(len(moves_data))]
                 # map into a list of tuples for single multiple insert
                 MD = list(map(tuple, MD))
-
                 #moves to string of tuples per move
                 values_moves = ','.join("({}, {}, '{}', {}, '{}', {})".format(
                     i, j, k, x, y, z) for i, j, k, x, y, z in MD)
