@@ -6,5 +6,5 @@ It can currently:
 2.Save the raw data to local folder or to given AWS s3 credentials  
 3.Create relevant rds postgresql tables(given AWS rds credentials) and populate them with the relevant structured data  
 4.Perform basic data cleaning operations  
-5.(Optional): run on multiprocessors to accelerate the process.
+5.(Optional): run on multiple processors to accelerate the process.
 
