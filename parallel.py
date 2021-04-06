@@ -2,16 +2,19 @@ from ChessComData import (get_player_data, get_names_by_title,
                           retrieve_games_per_month_series, save_player_games, extract_game_pgn,
                           retrieve_game_values)
 from boto3 import resource
-from rds_db_interact import (insert_into_table,insert_multi_into_table,
-                             clear_table, insert_to_moves_games, get_table_as_pd)
-
+from rds_db_interact import Table_sqls
 from Secrets import (username, access_key_ID, secret_access_ID)
-
+import Secrets
 import multiprocessing as mp
 import os
 from functools import partial
 import csv
 import tqdm
+
+# initialise RDS
+my_psycopg = Table_sqls(Secrets.hostname, Secrets.DB_username,
+                        Secrets.DB_username, Secrets.DB_password)
+
 class bigchessscrape:
     def __init__(self, folder=None):
         self = self
@@ -28,7 +31,7 @@ class bigchessscrape:
         values_players = f"{pd['player_id']},'{player}','{pd['name']}',{pd['join_date']}," + \
             f"'{pd['country_code']}','{pd['is_streamer']}','{pd['title']}'"
         # saving to rds table players
-        insert_into_table("players", self.columns_players, values_players)
+        my_psycopg.insert_into_table("players", self.columns_players, values_players)
 
     def retrieve_save_gamefiles(self, player, months_list, years_list):
         player_games = retrieve_games_per_month_series(
@@ -47,8 +50,8 @@ class bigchessscrape:
     def save_parallel(self, game):
         values_games, moves_data = retrieve_game_values(game)
         # add game Id identifier to every move
-        insert_to_moves_games(
-            "moves", "games", self.columns_moves, self.columns_games, values_games, moves_data)
+        my_psycopg.insert_to_moves_games(
+            "moves", "games", values_games, moves_data)
         #             #insert into games table
 
     def scrape(self, player, months_list, years_list):
